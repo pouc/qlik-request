@@ -1,6 +1,6 @@
 {
-  "name": "node-template",
-  "version": "1.0.4",
+  "name": "@pouc/node-template",
+  "version": "1.0.5",
   "description": "a template for all my node projects",
   "main": "index.js",
   "scripts": {
