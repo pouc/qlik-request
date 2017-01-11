@@ -1,0 +1,19 @@
+{
+  "preset": "google",
+  "maxErrors" : 5000,
+  "validateIndentation": 4,
+  "maximumLineLength": 512,
+  "requireCurlyBraces": false,
+  "jsDoc": {
+    "checkAnnotations": {
+      "preset": "closurecompiler",
+      "extra": {
+        "module": true,
+        "typicalname": true,
+        "copyright": true,
+        "classdesc": true
+      }
+    }
+  },
+  "requireCamelCaseOrUpperCaseIdentifiers": false
+}

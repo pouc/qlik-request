@@ -1,0 +1,36 @@
+{
+  "name": "node-template",
+  "version": "1.0.3",
+  "description": "a template for all my node projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pouc/node-template.git"
+  },
+  "author": "pouc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pouc/node-template/issues"
+  },
+  "homepage": "https://github.com/pouc/node-template#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "chai-things": "^0.2.0",
+    "grunt": "^1.0.1",
+    "grunt-bump": "^0.8.0",
+    "grunt-coveralls": "^1.0.1",
+    "grunt-jscs": "^3.0.1",
+    "grunt-jsdoc-to-markdown": "^2.0.0",
+    "grunt-mocha-istanbul": "^5.0.2",
+    "grunt-shell": "^2.1.0",
+    "grunt-simple-mocha": "^0.4.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.7",
+    "sinon-chai": "^2.8.0"
+  }
+}
