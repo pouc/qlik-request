@@ -38,16 +38,6 @@ module.exports = function(grunt) {
                 }
             }
         },
-        coveralls: {
-            options: {
-                force: false
-            },
-            default: {
-                src: 'coverage/*.info',
-                options: {
-                }
-            }
-        },
         bump: {
             options: {
                 push: true,
@@ -69,7 +59,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-simple-mocha');
     grunt.loadNpmTasks('grunt-mocha-istanbul');
-    grunt.loadNpmTasks('grunt-coveralls');
 
     grunt.registerTask('patch', 'patch', function() {
         grunt.task.run('bump:patch');
@@ -78,9 +67,13 @@ module.exports = function(grunt) {
 	grunt.registerTask('commit', 'commit', function() {
         grunt.task.run('bump:patch');
     });
+	
+	grunt.registerTask('doc', 'doc', function() {
+        grunt.task.run('jsdoc2md:oneOutputFile');
+    });
 
     grunt.registerTask('release', 'Release a new version, push it and publish it', function() {
-        grunt.task.run('jscs', 'simplemocha:all', 'mocha_istanbul:coverage', 'jsdoc2md:oneOutputFile', 'bump:patch', /*'shell:publish',*/ 'coveralls:default');
+        grunt.task.run('jscs', 'simplemocha:all', 'mocha_istanbul:coverage', 'jsdoc2md:oneOutputFile', 'bump:patch', 'shell:publish');
     });
 
 };
