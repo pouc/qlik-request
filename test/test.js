@@ -116,12 +116,30 @@ describe('request...', function() {
 
 		proxy.createProxy({ port: 1337 }).then((srv) => {
 			server = srv;
-			return exp.request({
-				restUri: `http://localhost:${srv.address().port}/status/servicestate`,
-				method: 'GET',
-				UserId: options.UserId,
-				UserDirectory: options.UserDirectory
-			}).should.eventually.have.property('value').to.be.within(1, 3);
+            
+			return promise().then(() => {
+                return exp.request({
+                    restUri: `http://localhost:${srv.address().port}/status/servicestate`,
+                    method: 'GET',
+                    UserId: options.UserId,
+                    UserDirectory: options.UserDirectory
+                }).should.eventually.have.property('value').to.be.within(1, 3)
+            }).then(() => {
+                return exp.request({
+                    restUri: `http://localhost:${srv.address().port}/qrs/app/count`,
+                    method: 'GET',
+                    UserId: options.UserId,
+                    UserDirectory: options.UserDirectory
+                }).should.eventually.equal('0');
+            }).then(() => {
+                return exp.request({
+                    restUri: `http://localhost:${srv.address().port}/qrs/app/count/mouargh`,
+                    method: 'GET',
+                    UserId: options.UserId,
+                    UserDirectory: options.UserDirectory
+                }).should.eventually.be.rejectedWith('Cannot GET');
+            });
+            
 			
 		}).then(function() {
 			done();

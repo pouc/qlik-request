@@ -158,16 +158,23 @@ exports.request = function(options, params) {
 
             apires.on('end', function(d) {
                 if (Math.floor(apires.statusCode / 100) <= 3) {
-
                     try {
-                        requestDef.resolve(JSON.parse(body));
+                        if (apires.headers['content-type'].split(';')[0] === 'application/json') {
+                            requestDef.resolve(JSON.parse(body));
+                        } else {
+                            requestDef.resolve(body);
+                        }
                     } catch (err) {
                         requestDef.resolve({uri: options.restUri, statusCode: apires.statusCode, statusMessage: apires.statusMessage, body: body});
                     }
 
                 } else {
                     try {
-                        requestDef.reject(JSON.parse(body));
+                        if (apires.headers['content-type'].split(';')[0] === 'application/json') {
+                            requestDef.reject(JSON.parse(body));
+                        } else {
+                            requestDef.reject(body);
+                        }
                     } catch (err) {
                         requestDef.reject({uri: options.restUri, statusCode: apires.statusCode, statusMessage: apires.statusMessage, body: body});
                     }
