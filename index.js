@@ -1,8 +1,10 @@
 var crypto = require('crypto');
 var url = require('url');
-var Q = require('q');
+var promise = require('q');
 var http = require('http');
 var https = require('https');
+
+var extend = require('extend');
 
 var undef = require('ifnotundef');
 
@@ -83,65 +85,46 @@ exports.generateXrfKey = function(size, chars) {
  */
 exports.request = function(options, params) {
 
+    undef.try(options);
+
+    var restUri = url.parse(undef.try(options.restUri, 'options.restUri must be defined'));
     var xrfkey = exports.generateXrfKey();
-    var restUri = url.parse(options.restUri);
-
-    var headers = {
-        'X-Qlik-Xrfkey': xrfkey,
-        'Content-Type': 'application/json'
-    };
-
-    if (typeof options.UserDirectory != 'undefined' || typeof options.UserId != 'undefined') {
-        headers['X-Qlik-User'] = 'UserDirectory= ' + undef.if(options.UserDirectory, '.') +
-            '; UserId= ' + undef.if(options.UserId, 'qlikservice');
-    }
-
-    var retry = undef.if(options.retry, 0);
-
-    if (typeof options.session != 'undefined') {
-        headers.Cookie = options.session;
-    }
-
-    var timeout = undef.if(options.timeout, 10000);
 
     var settings = {
         protocol: restUri.protocol,
-        host: restUri.hostname,
+        hostname: restUri.hostname,
         port: restUri.port,
         path: restUri.pathname + '?' + undef.if(restUri.query, restUri.query + '&', '') + 'xrfkey=' + xrfkey,
         method: undef.if(options.method, 'POST'),
-        headers: headers,
-        rejectUnauthorized: false,
-        agent: false
+        headers: extend(false, {}, undef.if(options.headers, {})),
+        rejectUnauthorized: undef.if(options.rejectUnauthorized, false),
+        agent: undef.if(options.agent, false)
     };
 
-    if (typeof options.pfx != 'undefined') {
-        settings.pfx = options.pfx;
-    }
-    if (typeof options.passPhrase != 'undefined') {
-        settings.passPhrase = options.passPhrase;
-    }
+    settings.headers['X-Qlik-Xrfkey'] = xrfkey;
+    settings.headers['Content-Type'] = 'application/json';
 
-    if (typeof options.key != 'undefined') {
-        settings.key = options.key;
-    }
-    if (typeof options.cert != 'undefined') {
-        settings.cert = options.cert;
-    }
-    if (typeof options.ca != 'undefined') {
+    var timeout = undef.if(options.timeout, 10000);
+
+    if (undef.isnot(options, 'ca')) {
         settings.ca = options.ca;
     }
+    if (undef.isnot(options, 'cert')) {
+        settings.cert = options.cert;
+    }
+    if (undef.isnot(options, 'key')) {
+        settings.key = options.key;
+    }
 
-    var requestDef = Q.defer();
-
-    if (settings.protocol == 'http:' && typeof options.pfx != 'undefined') {
-        requestDef.reject('https is needed to make API call with certificate');
-    } else if (settings.protocol != 'https:' && settings.protocol != 'http:') {
+    var requestDef = promise.defer();
+    
+    if (settings.protocol != 'https:' && settings.protocol != 'http:') {
         requestDef.reject('http/https is needed to make API call');
-    } else if (settings.protocol == 'https:' &&
-        !(
-            (typeof options.pfx !== 'undefined') ||
-            (typeof options.key !== 'undefined' && typeof options.cert !== 'undefined' && typeof options.ca !== 'undefined')
+    } else if (
+        settings.protocol == 'https:' && (
+            undef.is(options, 'ca') ||
+            undef.is(options, 'cert') ||
+            undef.is(options, 'key')
         )
     ) {
         requestDef.reject('https requires a pfx/pem certificate');
@@ -203,13 +186,6 @@ exports.request = function(options, params) {
 
     }
 
-    return requestDef.promise.fail(function(err) {
-        if (retry > 0) {
-            console.log(settings, err);
-            return exports.Base.request(extend(true, {}, options, {retry: retry - 1}), params);
-        } else {
-            return Q.reject(err);
-        }
-    });
+    return requestDef.promise;
 
 };
