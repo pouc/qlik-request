@@ -117,7 +117,7 @@ exports.request = function(options, params) {
     }
 
     var requestDef = promise.defer();
-    
+
     if (settings.protocol != 'https:' && settings.protocol != 'http:') {
         requestDef.reject('http/https is needed to make API call');
     } else if (
